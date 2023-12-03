@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CafeKasse.MAUI.ViewModels"
+             xmlns:models="clr-namespace:CafeKasse.MAUI.Entities"    
+             x:DataType="vm:CategoryViewModel"
+             x:Class="CafeKasse.MAUI.Pages.CategoryPage">
+    <ContentPage.Resources>
+        <Style TargetType="Border" x:Key="CategoryBorder">
+            <Setter Property="HeightRequest" Value="50" />
+            <Setter Property="WidthRequest" Value="100" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        </Style>
+        <Style TargetType="Border" x:Key="ItemBorder">
+            <Setter Property="HeightRequest" Value="100" />
+            <Setter Property="WidthRequest" Value="100" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid ColumnDefinitions="20,.65*,auto,.25*,20" RowDefinitions="20,auto,*,20">
+
+        <FlexLayout  Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" BindableLayout.ItemsSource="{Binding Categories}"
+              Wrap="Wrap" AlignItems="Start" JustifyContent="Start" VerticalOptions="Start" >
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="models:Category">
+                    <Border Style="{StaticResource CategoryBorder}"
+                     BackgroundColor="{StaticResource Secondary}"
+                     Padding="0" Margin="2">
+                        <Label HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="{Binding Name}"/>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={x:RelativeSource AncestorType={x:Type vm:CategoryViewModel}}, Path=SelectedCategory_ChangedCommand}"
+                                                  CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </FlexLayout>
+
+        <FlexLayout  Grid.Column="1" Grid.Row="2" BindableLayout.ItemsSource="{Binding ItemsPerCategory}"
+                        Wrap="Wrap" AlignItems="Start" JustifyContent="Start" VerticalOptions="Start" >
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="models:Item">
+                    <Border Style="{StaticResource ItemBorder}"
+             BackgroundColor="{StaticResource Secondary}"
+             Padding="0" Margin="2">
+                        <Label HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="{Binding Name}"/>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </FlexLayout>
+        
+    </Grid>
+</ContentPage> 
+    
+    

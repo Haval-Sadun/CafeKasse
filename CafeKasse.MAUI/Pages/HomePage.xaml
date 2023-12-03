@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:CafeKasse.MAUI.ViewModels"
+             xmlns:models="clr-namespace:CafeKasse.MAUI.Entities"
+             xmlns:converters="clr-namespace:CafeKasse.MAUI.Converter"
+             x:DataType="vm:HomeViewModel"
+             x:Class="CafeKasse.MAUI.Pages.HomePage">
+    <ContentPage.Resources>
+        <converters:StatusToColorConverter x:Key="StatusColor" />
+        <Style TargetType="Border" x:Key="TableBorder">
+            <Setter Property="HeightRequest" Value="100" />
+            <Setter Property="WidthRequest" Value="100" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        </Style>
+    </ContentPage.Resources>
+    
+    <Grid ColumnDefinitions="20,.75*,.25*,20" RowDefinitions="20,*,20">
+        <FlexLayout  Grid.Column="1" Grid.Row="1" BindableLayout.ItemsSource="{Binding Tables}"
+                     Wrap="Wrap" AlignItems="Start" JustifyContent="Start" VerticalOptions="Start">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="models:Table">
+                    <Border Style="{StaticResource TableBorder}"
+                            BackgroundColor="{Binding TableStatus, Converter={StaticResource StatusColor}}"
+                            Padding="0" Margin="2">
+                        <Label HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="{Binding TableNumber}"/>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{ Binding Source={x:RelativeSource AncestorType={x:Type vm:HomeViewModel}},Path=GoToCategoryPageCommand}"
+                                                  CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </FlexLayout>
+    </Grid>
+
+    
+
+</ContentPage>
+    
+    
+    
+<!--<FlexLayout BindableLayout.ItemsSource="{Binding Tables}" >
+        <BindableLayout.ItemTemplate>
+            <DataTemplate x:DataType="models:Table">
+                <Border StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            BackgroundColor="{StaticResource Secondary}"
+                            Padding="0" Margin="2">
+                    <Label Text="{Binding TableNumber}"/>
+                </Border>
+            </DataTemplate>
+        </BindableLayout.ItemTemplate>
+    </FlexLayout>-->

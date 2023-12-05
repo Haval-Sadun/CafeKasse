@@ -12,10 +12,12 @@ namespace CafeKasse.MAUI.Entities
         public int Id { get; set; }
         public int ItemId { get; set; }
         public string ItemName { get; set; }
+        public int OrderId { get; set; }
         public decimal Price { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Amount))]
         private int _quantity;
         public decimal Amount => Price * Quantity;
+        public CartItem Clone() => (CartItem)MemberwiseClone();
     }
 }

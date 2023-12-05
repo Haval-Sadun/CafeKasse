@@ -46,7 +46,12 @@
                     <Border Style="{StaticResource ItemBorder}"
              BackgroundColor="{StaticResource Secondary}"
              Padding="0" Margin="2">
-                        <Label HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="{Binding Name}"/>
+                        <Label HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="{Binding Name}" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={x:RelativeSource AncestorType={x:Type vm:CategoryViewModel}}, Path=SelectedItem_ChangedCommand}"
+                          CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                        
                     </Border>
                 </DataTemplate>
             </BindableLayout.ItemTemplate>

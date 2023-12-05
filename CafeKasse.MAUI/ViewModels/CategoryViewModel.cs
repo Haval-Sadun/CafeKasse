@@ -20,22 +20,43 @@ namespace CafeKasse.MAUI.ViewModels
 
         private readonly CategoryService _categoryService;
         private readonly ItemService _itemService;
-        public CategoryViewModel(CategoryService categoryService, ItemService itemService)
+
+        private readonly CartItemService _cartItemService;
+        private readonly OrderService _orderService;
+        public CategoryViewModel(CategoryService categoryService, ItemService itemService, OrderService orderService, CartItemService cartItemService = null)
         {
             _categoryService = categoryService;
             _itemService = itemService;
-
+            _orderService = orderService;
+            _cartItemService = cartItemService;
         }
 
         public ObservableCollection<Item> Items { get; set; } = new();
         public ObservableCollection<Item> ItemsPerCategory { get; set; } = new();
         public ObservableCollection<Category> Categories { get; set; } = new();
         
+        // Collections for the Order and the order items 
+        public ObservableCollection<CartItem> CartItems { get; set; } = new();
+        public ObservableCollection<Order> Orders { get; set; } = new();
+
         [ObservableProperty]
         private Table _table;
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(ItemsPerCategory))]
         private Category _category;
+
+        [ObservableProperty]
+        private Item _item;
+
+        [ObservableProperty]
+        private Order _order;
+
+        //executed by toolkit for the observable property "Category"
+        partial void OnCategoryChanged(Category? cat)
+        {
+            InitializeItemProCategory();
+        }
+
 
         public void InitializeItemProCategory()
         {
@@ -53,15 +74,17 @@ namespace CafeKasse.MAUI.ViewModels
         {
             var items = _itemService.GetAllItems();
             var categ =_categoryService.GetAllCategories();
+            var cartItems = _cartItemService.GetCartItems();
+            var orders = _orderService.GetAllOrders();
            
             foreach(var cat in categ)
-            {
                 Categories.Add(cat);
-            }
             foreach(var it in items)
-            {
                 Items.Add(it);
-            }
+            foreach(var cartitem in  cartItems)
+                CartItems.Add(cartitem);
+            foreach(var order in orders)
+                Orders.Add(order);
 
         }
 
@@ -69,8 +92,12 @@ namespace CafeKasse.MAUI.ViewModels
         private void SelectedCategory_Changed(Category category)
         {
             Category = category;
-            InitializeItemProCategory();
-            //Toast.Make("Category has been attached" + category.Name, ToastDuration.Long,30).Show();
+        }
+
+        [RelayCommand]
+        private void SelectedItem_Changed(Item item)
+        {
+            Item = item;
         }
     }
 }

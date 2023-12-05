@@ -34,6 +34,8 @@ namespace CafeKasse.MAUI
             services.AddSingleton<TableService> ();
             services.AddSingleton<CategoryService> ();
             services.AddSingleton<ItemService> ();
+            services.AddSingleton<OrderService> ();
+            services.AddSingleton<CartItemService> ();
 
             services.AddSingletonWithShellRoute<HomePage, HomeViewModel>(nameof(HomePage));
             services.AddTransientWithShellRoute<CategoryPage, CategoryViewModel>(nameof(CategoryPage));

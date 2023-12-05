@@ -11,7 +11,7 @@ namespace CafeKasse.MAUI.Entities
         public int Id { get; set; }
         public IEnumerable<CartItem> CartItems { get; set; }
         public DateTime Date { get; set; }= DateTime.Now;
-
+        public int TableNumber { get; set; }
         public decimal TotalAmount => CartItems.Sum(i => i.Amount);
         public OrderStatus Status { get; set; } = OrderStatus.Placed;
         public Color Color => _orderStatusColorMap[Status];

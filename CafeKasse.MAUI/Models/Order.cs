@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CafeKasse.MAUI.Entities
+namespace CafeKasse.MAUI.Models
 {
     public class Order
     {
         public int Id { get; set; }
-        public IEnumerable<CartItem> CartItems { get; set; }
+        public IEnumerable<OrderItem> OrderItems { get; set; }
         public DateTime Date { get; set; }= DateTime.Now;
         public int TableNumber { get; set; }
-        public decimal TotalAmount => CartItems.Sum(i => i.Amount);
-        public OrderStatus Status { get; set; } = OrderStatus.Placed;
+        public double TotalAmount => OrderItems.Sum(i => i.Amount);
+        public OrderStatus Status { get; set; } = OrderStatus.Confirmed;
         public Color Color => _orderStatusColorMap[Status];
 
         private static readonly IReadOnlyDictionary<OrderStatus, Color> _orderStatusColorMap =

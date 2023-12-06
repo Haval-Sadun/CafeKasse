@@ -1,4 +1,4 @@
-﻿using CafeKasse.MAUI.Entities;
+﻿using CafeKasse.MAUI.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -21,7 +21,7 @@ namespace CafeKasse.MAUI.Converter
                         return Color.FromHex("FAEED1"); // yallow 
                     case Status.Available:
                         return Color.FromHex("B2C8BA"); // Green
-                    case Status.Accupied:
+                    case Status.Occupied:
                         return Color.FromHex("FF6C22"); // Red
                 }
             }

@@ -5,19 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CafeKasse.MAUI.Entities
+namespace CafeKasse.MAUI.Models
 {
-    public partial class CartItem : ObservableObject
+    public partial class OrderItem : ObservableObject
     {
         public int Id { get; set; }
         public int ItemId { get; set; }
         public string ItemName { get; set; }
         public int OrderId { get; set; }
-        public decimal Price { get; set; }
+        public double Price { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Amount))]
         private int _quantity;
-        public decimal Amount => Price * Quantity;
-        public CartItem Clone() => (CartItem)MemberwiseClone();
+        public double Amount => Price * Quantity;
+        public OrderItem Clone() => (OrderItem)MemberwiseClone();
     }
 }

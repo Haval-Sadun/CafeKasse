@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CafeKasse.MAUI.Entities
+namespace CafeKasse.MAUI.Models
 {
     public enum OrderStatus
     {

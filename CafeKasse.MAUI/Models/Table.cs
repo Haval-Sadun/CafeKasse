@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace CafeKasse.MAUI.Entities
+namespace CafeKasse.MAUI.Models
 {
     public partial class Table : ObservableObject 
     {

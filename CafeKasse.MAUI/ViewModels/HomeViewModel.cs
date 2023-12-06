@@ -1,4 +1,4 @@
-﻿using CafeKasse.MAUI.Entities;
+﻿using CafeKasse.MAUI.Models;
 using CafeKasse.MAUI.Pages;
 using CafeKasse.MAUI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;

@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:CafeKasse.MAUI.ViewModels"
-             xmlns:models="clr-namespace:CafeKasse.MAUI.Entities"
+             xmlns:models="clr-namespace:CafeKasse.MAUI.Models"
              xmlns:converters="clr-namespace:CafeKasse.MAUI.Converter"
              x:DataType="vm:HomeViewModel"
              x:Class="CafeKasse.MAUI.Pages.HomePage">

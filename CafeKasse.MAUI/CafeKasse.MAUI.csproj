@@ -47,7 +47,6 @@
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
-		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -62,6 +61,39 @@
 
 	<ItemGroup>
 	  <MauiXaml Remove="Pages\NewPage1.xaml" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Resources\Images\almond_croissant.jpg" />
+	  <None Remove="Resources\Images\Americano.jpg" />
+	  <None Remove="Resources\Images\apple_pie.jpg" />
+	  <None Remove="Resources\Images\blt.jpg" />
+	  <None Remove="Resources\Images\blueberry_muffin.jpg" />
+	  <None Remove="Resources\Images\Cappuccino.jpg" />
+	  <None Remove="Resources\Images\caprese_panini.jpg" />
+	  <None Remove="Resources\Images\cheesecake.jpg" />
+	  <None Remove="Resources\Images\chicken_caesar_wrap.jpg" />
+	  <None Remove="Resources\Images\chocolate_cake.jpg" />
+	  <None Remove="Resources\Images\chocolate_danish.jpg" />
+	  <None Remove="Resources\Images\cinnamon_roll.jpg" />
+	  <None Remove="Resources\Images\cold_beverages.jpg" />
+	  <None Remove="Resources\Images\cold_brew.jpg" />
+	  <None Remove="Resources\Images\Croissant.jpg" />
+	  <None Remove="Resources\Images\Desserts.jpg" />
+	  <None Remove="Resources\Images\espresso.jpg" />
+	  <None Remove="Resources\Images\Frappuccino.jpg" />
+	  <None Remove="Resources\Images\hot_beverages.jpg" />
+	  <None Remove="Resources\Images\iced_coffee.jpg" />
+	  <None Remove="Resources\Images\iced_latte.jpeg" />
+	  <None Remove="Resources\Images\ice_cream_sundae.jpg" />
+	  <None Remove="Resources\Images\Latte.jpg" />
+	  <None Remove="Resources\Images\Mocha.png" />
+	  <None Remove="Resources\Images\Pastries.jpg" />
+	  <None Remove="Resources\Images\Sandwiches.jpg" />
+	  <None Remove="Resources\Images\Smoothie.jpg" />
+	  <None Remove="Resources\Images\Tiramisu.jpg" />
+	  <None Remove="Resources\Images\turkey_club_sandwich.jpg" />
+	  <None Remove="Resources\Images\veggie_delight_sandwich.jpg" />
 	</ItemGroup>
 
 	<ItemGroup>

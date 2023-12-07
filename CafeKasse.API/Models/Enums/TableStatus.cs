@@ -1,6 +1,6 @@
-﻿namespace CafeKasse.MAUI.Models
+﻿namespace CafeKasse.API.Models.Enums
 {
-    public enum Status
+    public enum TableStatus
     {
         Resevered = 1,
         Available = 2,

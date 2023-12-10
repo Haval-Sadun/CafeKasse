@@ -15,14 +15,14 @@
             <Setter Property="StrokeShape" Value="RoundRectangle 10" />
         </Style>
     </ContentPage.Resources>
-    
+
     <Grid ColumnDefinitions="20,.75*,.25*,20" RowDefinitions="20,*,20">
         <FlexLayout  Grid.Column="1" Grid.Row="1" BindableLayout.ItemsSource="{Binding Tables}"
                      Wrap="Wrap" AlignItems="Start" JustifyContent="Start" VerticalOptions="Start">
             <BindableLayout.ItemTemplate>
                 <DataTemplate x:DataType="models:Table">
                     <Border Style="{StaticResource TableBorder}"
-                            BackgroundColor="{Binding TableStatus, Converter={StaticResource StatusColor}}"
+                            BackgroundColor="{Binding State, Converter={StaticResource StatusColor}}"
                             Padding="0" Margin="2">
                         <Label HorizontalTextAlignment="Center" VerticalTextAlignment="Center" Text="{Binding TableNumber}"/>
                         <Border.GestureRecognizers>
@@ -35,21 +35,6 @@
         </FlexLayout>
     </Grid>
 
-    
+
 
 </ContentPage>
-    
-    
-    
-<!--<FlexLayout BindableLayout.ItemsSource="{Binding Tables}" >
-        <BindableLayout.ItemTemplate>
-            <DataTemplate x:DataType="models:Table">
-                <Border StrokeShape="RoundRectangle 10"
-                            StrokeThickness="0"
-                            BackgroundColor="{StaticResource Secondary}"
-                            Padding="0" Margin="2">
-                    <Label Text="{Binding TableNumber}"/>
-                </Border>
-            </DataTemplate>
-        </BindableLayout.ItemTemplate>
-    </FlexLayout>-->

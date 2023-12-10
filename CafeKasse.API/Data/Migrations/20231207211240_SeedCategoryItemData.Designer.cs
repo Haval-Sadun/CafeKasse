@@ -4,6 +4,7 @@ using CafeKasse.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CafeKasse.API.Data.Migrations
 {
     [DbContext(typeof(CafeContext))]
-    partial class CafeContextModelSnapshot : ModelSnapshot
+    [Migration("20231207211240_SeedCategoryItemData")]
+    partial class SeedCategoryItemData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -350,9 +353,6 @@ namespace CafeKasse.API.Data.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("TableId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TableNumber")
                         .HasColumnType("int");
 
@@ -361,7 +361,7 @@ namespace CafeKasse.API.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TableId");
+                    b.HasIndex("TableNumber");
 
                     b.ToTable("Orders", (string)null);
                 });
@@ -522,7 +522,7 @@ namespace CafeKasse.API.Data.Migrations
                 {
                     b.HasOne("CafeKasse.API.Models.Table", "Table")
                         .WithMany("Orders")
-                        .HasForeignKey("TableId")
+                        .HasForeignKey("TableNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

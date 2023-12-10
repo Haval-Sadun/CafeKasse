@@ -13,6 +13,12 @@ namespace CafeKasse.MAUI.Pages
             BindingContext = _homeViewModel;
         }
 
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await _homeViewModel.initializeTables();
+        }
+
 
     }
 

@@ -8,12 +8,12 @@ namespace CafeKasse.API.Models
         [Key]
         public int Id { get; set; }
         public DateTime Date { get; set; } = DateTime.UtcNow;
-        [Required]
         public int TableNumber { get; set; }
+        public int TableId { get; set; }
         public double TotalAmount { get; set; }
         public OrderStatus Status { get; set; } = OrderStatus.Created;
 
-        public virtual ICollection<OrderItem> OrderItems { get; set; }
+        public virtual ICollection<OrderItem>? OrderItems { get; set; }
         public virtual Table? Table { get; set; }
 
     }

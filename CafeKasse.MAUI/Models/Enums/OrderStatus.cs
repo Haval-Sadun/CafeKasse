@@ -4,13 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CafeKasse.MAUI.Models
+namespace CafeKasse.MAUI.Models.Enums
 {
     public enum OrderStatus
     {
-        Placed = 0,
-        Confirmed = 1,
-        Delivered = 2,
-        Cancelled = 3
+        Created = 1, InProgress = 2, Done = 3, Cancelled = 4
     }
 }

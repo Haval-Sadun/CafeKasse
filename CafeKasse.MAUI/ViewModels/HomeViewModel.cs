@@ -14,25 +14,32 @@ namespace CafeKasse.MAUI.ViewModels
 {
     public partial class HomeViewModel : ObservableObject
     {
-        public ObservableCollection<Table> Tables {  get; set; }
+        public ObservableCollection<Table> Tables { get; set; } = new();
 
         private readonly TableService _tableService;
 
         public HomeViewModel(TableService tableService)
         {
             _tableService = tableService;
-            Tables = new(_tableService.GetAllTables());
-
         }
 
         [RelayCommand]
-        private async Task GoToCategoryPage(Table table) 
+        private async Task GoToCategoryPage(Table table)
         {
             var parameters = new Dictionary<string, object>()
             {
                 [nameof(CategoryViewModel.Table)] = table,
             };
-            await Shell.Current.GoToAsync(nameof(CategoryPage), animate: true, parameters); 
+            await Shell.Current.GoToAsync(nameof(CategoryPage), animate: true, parameters);
+        }
+
+        public async Task initializeTables()
+        {
+            var tables = await _tableService.GetAllTables();
+            foreach (var table in tables)
+            {
+                Tables.Add(table);
+            }
         }
     }
 }

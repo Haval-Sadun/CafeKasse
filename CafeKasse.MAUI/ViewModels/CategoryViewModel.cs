@@ -1,4 +1,5 @@
 ﻿using CafeKasse.MAUI.Models;
+using CafeKasse.MAUI.Models.Enums;
 using CafeKasse.MAUI.Services;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace CafeKasse.MAUI.ViewModels
 {
-    [QueryProperty(nameof(Table),nameof(Table))]
+    [QueryProperty(nameof(Table), nameof(Table))]
     public partial class CategoryViewModel : ObservableObject
     {
         private Random random = new Random();
@@ -25,7 +26,7 @@ namespace CafeKasse.MAUI.ViewModels
         private readonly TableService _tableService;
         private readonly OrderService _orderService;
         public CategoryViewModel(CategoryService categoryService, ItemService itemService,
-                                OrderService orderService, OrderItemService orderItemService, TableService tableService )
+                                OrderService orderService, OrderItemService orderItemService, TableService tableService)
         {
             _categoryService = categoryService;
             _itemService = itemService;
@@ -38,7 +39,7 @@ namespace CafeKasse.MAUI.ViewModels
         public ObservableCollection<Table> Tables { get; set; } = new();
         public ObservableCollection<Item> ItemsPerCategory { get; set; } = new();
         public ObservableCollection<Category> Categories { get; set; } = new();
-        
+
         // Collections for the Order and the order items 
         public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
         public ObservableCollection<Order> Orders { get; set; } = new();
@@ -64,13 +65,14 @@ namespace CafeKasse.MAUI.ViewModels
         partial void OnTableChanged(Table value)
         {
             InitializeOrders();
-            if (value.TableStatus != Status.Occupied)
+            if (value.State != TableStatus.Occupied)
             {
-                value.TableStatus = Status.Occupied;
+                value.State = TableStatus.Occupied;
                 var or = new Order { Id = GenerateRandomId(3, 100), TableNumber = value.TableNumber };
                 _orderService.AddOrder(or);
                 Order = or;
-            }else
+            }
+            else
                 Order = _orderService.GetOrdersByTableNumber(value.TableNumber);
             //Toast.Make($" order id {Order.Id} for Table {value.TableNumber}").Show();
 
@@ -78,43 +80,43 @@ namespace CafeKasse.MAUI.ViewModels
 
         public void InitializeItemProCategory()
         {
-            if(Category is not  null )
+            if (Category is not null)
             {
                 ItemsPerCategory.Clear();
                 var itCat = _itemService.GetItemForCategory(Category.Id);
-                foreach(var ic in itCat)
+                foreach (var ic in itCat)
                 {
                     ItemsPerCategory.Add(ic);
                 }
             }
         }
 
-        public void InitializeOrders()
+        public async void InitializeOrders()
         {
             var orders = _orderService.GetAllOrders();
-            var tables = _tableService.GetAllTables();
+            var tables = await _tableService.GetAllTables();
             foreach (var order in orders)
                 Orders.Add(order);
             foreach (var table in tables)
                 Tables.Add(table);
         }
-        public void Initialize()
+        public async void Initialize()
         {
             var items = _itemService.GetAllItems();
-            var categ =_categoryService.GetAllCategories();
+            var categ = _categoryService.GetAllCategories();
             var orderItems = _orderItemService.GetOrderItems();
             var orders = _orderService.GetAllOrders();
-            var tables = _tableService.GetAllTables();
-           
-            foreach(var cat in categ)
+            var tables = await _tableService.GetAllTables();
+
+            foreach (var cat in categ)
                 Categories.Add(cat);
-            foreach(var it in items)
+            foreach (var it in items)
                 Items.Add(it);
-            foreach(var orderitem in  orderItems)
+            foreach (var orderitem in orderItems)
                 OrderItems.Add(orderitem);
-            foreach(var order in orders)
+            foreach (var order in orders)
                 Orders.Add(order);
-            foreach(var table in tables)
+            foreach (var table in tables)
                 Tables.Add(table);
 
         }
@@ -137,10 +139,10 @@ namespace CafeKasse.MAUI.ViewModels
         {
             //if the orders has selected item then increase it 
             var orderItem = OrderItems.FirstOrDefault(i => i.ItemId == Item.Id);
-           
-            if(Table.TableStatus == Status.Occupied && (Order.Status == OrderStatus.Confirmed && Order.TableNumber == Table.TableNumber))
+
+            if (Table.State == TableStatus.Occupied && (Order.Status == OrderStatus.Created && Order.TableNumber == Table.TableNumber))
                 if (orderItem is null)
-                    OrderItems.Add(new OrderItem { Id = GenerateRandomId(2,100), ItemId=Item.Id, ItemName= Item.Name, Quantity=1, Price=Item.Price, OrderId= Order.Id });
+                    OrderItems.Add(new OrderItem { Id = GenerateRandomId(2, 100), ItemId = Item.Id, ItemName = Item.Name, Quantity = 1, Price = Item.Price, OrderId = Order.Id });
                 else orderItem.Quantity++;
         }
 

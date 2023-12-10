@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CafeKasse.MAUI.Models.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,18 +11,18 @@ namespace CafeKasse.MAUI.Models
     {
         public int Id { get; set; }
         public IEnumerable<OrderItem> OrderItems { get; set; }
-        public DateTime Date { get; set; }= DateTime.Now;
+        public DateTime Date { get; set; } = DateTime.Now;
         public int TableNumber { get; set; }
         public double TotalAmount => OrderItems.Sum(i => i.Amount);
-        public OrderStatus Status { get; set; } = OrderStatus.Confirmed;
+        public OrderStatus Status { get; set; } = OrderStatus.Created;
         public Color Color => _orderStatusColorMap[Status];
 
         private static readonly IReadOnlyDictionary<OrderStatus, Color> _orderStatusColorMap =
             new Dictionary<OrderStatus, Color>
             {
-                [OrderStatus.Placed] = Colors.Yellow,
-                [OrderStatus.Confirmed] = Colors.Blue,
-                [OrderStatus.Delivered] = Colors.Green,
+                [OrderStatus.Created] = Colors.Yellow,
+                [OrderStatus.InProgress] = Colors.Blue,
+                [OrderStatus.Done] = Colors.Green,
                 [OrderStatus.Cancelled] = Colors.Red,
             };
     }

@@ -1,4 +1,5 @@
 ﻿using CafeKasse.MAUI.Models;
+using CafeKasse.MAUI.Models.Enums;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,15 +14,15 @@ namespace CafeKasse.MAUI.Converter
         [Obsolete]
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if(value is Status status)
+            if (value is TableStatus status)
             {
                 switch (status)
                 {
-                    case Status.Resevered:
+                    case TableStatus.Resevered:
                         return Color.FromHex("FAEED1"); // yallow 
-                    case Status.Available:
+                    case TableStatus.Available:
                         return Color.FromHex("B2C8BA"); // Green
-                    case Status.Occupied:
+                    case TableStatus.Occupied:
                         return Color.FromHex("FF6C22"); // Red
                 }
             }

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CafeKasse.MAUI.Models.Enums;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace CafeKasse.MAUI.Models
 {
@@ -6,7 +7,9 @@ namespace CafeKasse.MAUI.Models
     {
         public int Id { get; set; }
         public int TableNumber { get; set; }
-        public Status TableStatus { get; set; }
+        public TableStatus State { get; set; }
+
+        public ICollection<Order>? Orders { get; set; }
 
     }
 }

@@ -10,6 +10,6 @@ namespace CafeKasse.API.Models
         [Required]
         public int TableNumber { get; set; }
         public TableStatus State { get; set; } = TableStatus.Available;
-        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Order>? Orders { get; set; }
     }
 }

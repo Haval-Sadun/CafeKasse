@@ -36,6 +36,7 @@ namespace CafeKasse.MAUI.ViewModels
         public async Task initializeTables()
         {
             var tables = await _tableService.GetAllTables();
+            Tables.Clear();
             foreach (var table in tables)
             {
                 Tables.Add(table);

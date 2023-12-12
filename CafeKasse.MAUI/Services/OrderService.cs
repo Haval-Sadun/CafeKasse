@@ -1,31 +1,72 @@
 ﻿using CafeKasse.MAUI.Models;
-using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Text.Json;
+using CafeKasse.MAUI.Models.Enums;
 
 namespace CafeKasse.MAUI.Services
 {
-    public partial class OrderService : ObservableObject
+    public partial class OrderService : BaseApiService // ObservableObject
     {
-        public static IEnumerable<Order> _orders = new List<Order>();
+        private IEnumerable<Order>? _orders;
 
-        public IEnumerable<Order> GetAllOrders() => _orders;
+        public OrderService(IHttpClientFactory httpClientFactory) : base(httpClientFactory) { }
 
-        public Order GetOrdersByTableNumber(int tableNumber) => _orders.FirstOrDefault(o => o.TableNumber == tableNumber);
+        public async ValueTask<IEnumerable<Order>> GetAllOrders()
+        {
+            if (_orders == null)
+            {
+                var response = await HttpClient.GetAsync("/api/Orders");
+                var orders = await HandleApiResponseAsync(response, Enumerable.Empty<Order>());
+                if (orders == null)
+                    return Enumerable.Empty<Order>();
+                _orders = orders;
+            }
+            return _orders;
+        }
 
-        public Order GetOrderbyId(int id) => _orders.FirstOrDefault(o => o.Id == id);
+        public async ValueTask<Order> GetOrderByTableNumber(int tableNumber) =>
+            (await GetAllOrders()).Where(o => o.Status == OrderStatus.Created ||
+                                            o.Status == OrderStatus.InProgress)
+                                  .FirstOrDefault(o => o.TableNumber == tableNumber);
 
-        public void AddOrder(Order or) => _orders.Append(or);
 
+        public async ValueTask<Order> GetOrderbyId(int id) =>
+            (await GetAllOrders()).FirstOrDefault(o => o.Id == id);
 
+        public async ValueTask<Order> SaveOrderAsync(Order order)
+        {
 
+            string json = JsonSerializer.Serialize(order, serializerOptions);
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
+            HttpResponseMessage response = null;
+
+            response = await HttpClient.PostAsync("/api/Orders", content);
+
+            return await HandleApiResponseAsync<Order>(response, null);
+        }
+
+        public async Task UpdateOrderAsync(Order order, int id)
+        {
+            string json = JsonSerializer.Serialize<Order>(order, serializerOptions);
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            await HttpClient.PutAsync($"/api/Orders/{id}", content);
+
+        }
+        public async Task DeleteOrderAsync(int id)
+        {
+            try
+            {
+                HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/Orders/{id}");
+                if (response.IsSuccessStatusCode)
+                    Debug.WriteLine(@"\tOrderItem successfully deleted.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(@"\tERROR {0}", ex.Message);
+            }
+        }
     }
 }

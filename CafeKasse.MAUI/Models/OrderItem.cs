@@ -11,7 +11,6 @@ namespace CafeKasse.MAUI.Models
     {
         public int Id { get; set; }
         public int ItemId { get; set; }
-        public string ItemName { get; set; }
         public int OrderId { get; set; }
         public double Price { get; set; }
 

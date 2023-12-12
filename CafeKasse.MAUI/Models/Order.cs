@@ -10,9 +10,10 @@ namespace CafeKasse.MAUI.Models
     public class Order
     {
         public int Id { get; set; }
-        public IEnumerable<OrderItem> OrderItems { get; set; }
+        public IEnumerable<OrderItem> OrderItems { get; set; } = Enumerable.Empty<OrderItem>();
         public DateTime Date { get; set; } = DateTime.Now;
         public int TableNumber { get; set; }
+        public int TableId { get; set; }
         public double TotalAmount => OrderItems.Sum(i => i.Amount);
         public OrderStatus Status { get; set; } = OrderStatus.Created;
         public Color Color => _orderStatusColorMap[Status];

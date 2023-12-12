@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 
 namespace CafeKasse.MAUI.ViewModels
 {
-    public partial class OrderViewModel: ObservableObject
+    public partial class OrderViewModel : ObservableObject
     {
         private readonly OrderItemService _cartItemService;
         private readonly OrderService _orderService;
@@ -17,12 +17,9 @@ namespace CafeKasse.MAUI.ViewModels
         {
             _cartItemService = cartItemService;
             _orderService = orderService;
-
-            OrderItems = new(_cartItemService.GetOrderItems());
-            Orders = new(_orderService.GetAllOrders());
         }
-        public ObservableCollection<OrderItem> OrderItems { get; set; } 
-        public ObservableCollection<Order> Orders { get; set; } 
+        public ObservableCollection<OrderItem> OrderItems { get; set; }
+        public ObservableCollection<Order> Orders { get; set; }
 
 
         [ObservableProperty]
@@ -51,7 +48,7 @@ namespace CafeKasse.MAUI.ViewModels
             var item = OrderItems.FirstOrDefault(c => c.Id == cartItem.Id);
             if (item != null)
             {
-                if(item.Quantity > 0)
+                if (item.Quantity > 0)
                     item.Quantity--;
                 else
                     OrderItems.Remove(cartItem);

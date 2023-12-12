@@ -2,47 +2,42 @@
 using CafeKasse.MAUI.Models.Enums;
 using CafeKasse.MAUI.Services;
 using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CafeKasse.MAUI.ViewModels
 {
     [QueryProperty(nameof(Table), nameof(Table))]
     public partial class CategoryViewModel : ObservableObject
     {
-        private Random random = new Random();
-
         private readonly CategoryService _categoryService;
         private readonly ItemService _itemService;
 
         private readonly OrderItemService _orderItemService;
         private readonly TableService _tableService;
+        private readonly HomeViewModel _tableViewModel;
         private readonly OrderService _orderService;
         public CategoryViewModel(CategoryService categoryService, ItemService itemService,
-                                OrderService orderService, OrderItemService orderItemService, TableService tableService)
+                                OrderService orderService, OrderItemService orderItemService,
+                                TableService tableService, HomeViewModel tableViewModel)
         {
             _categoryService = categoryService;
             _itemService = itemService;
             _orderService = orderService;
             _orderItemService = orderItemService;
             _tableService = tableService;
+            _tableViewModel = tableViewModel;
         }
 
         public ObservableCollection<Item> Items { get; set; } = new();
-        public ObservableCollection<Table> Tables { get; set; } = new();
         public ObservableCollection<Item> ItemsPerCategory { get; set; } = new();
         public ObservableCollection<Category> Categories { get; set; } = new();
 
         // Collections for the Order and the order items 
         public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
         public ObservableCollection<Order> Orders { get; set; } = new();
+
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Order))]
         private Table? _table;
@@ -56,34 +51,44 @@ namespace CafeKasse.MAUI.ViewModels
         [ObservableProperty]
         private Order? _order;
 
+        [ObservableProperty]
+        private OrderItem? _orderItem;
+
+
+
         //executed by toolkit for the observable property "Category"
         partial void OnCategoryChanged(Category? cat)
         {
             InitializeItemProCategory();
         }
 
-        partial void OnTableChanged(Table value)
-        {
-            InitializeOrders();
-            if (value.State != TableStatus.Occupied)
-            {
-                value.State = TableStatus.Occupied;
-                var or = new Order { Id = GenerateRandomId(3, 100), TableNumber = value.TableNumber };
-                _orderService.AddOrder(or);
-                Order = or;
-            }
-            else
-                Order = _orderService.GetOrdersByTableNumber(value.TableNumber);
-            //Toast.Make($" order id {Order.Id} for Table {value.TableNumber}").Show();
+        //partial void OnTableChanged(Table value)
+        //{
+        //    var order = _orderService.GetOrderByTableNumber(value.TableNumber);
+        //    if (order != null)
+        //        Order = order.Result;
+        //    else
+        //        Order = order.Result;
+        ////InitializeOrders();
+        //if (value.State != TableStatus.Occupied)
+        //{
+        //    value.State = TableStatus.Occupied;
+        //    var or = new Order { Id = GenerateRandomId(3, 100), TableNumber = value.TableNumber };
+        //    _orderService.AddOrder(or);
+        //    Order = or;
+        //}
+        //else
+        //    Order = await _orderService.GetOrderByTableNumber(value.TableNumber);
+        //Toast.Make($" order id {Order.Id} for Table {value.TableNumber}").Show();
 
-        }
+        //}
 
-        public void InitializeItemProCategory()
+        public async void InitializeItemProCategory()
         {
             if (Category is not null)
             {
                 ItemsPerCategory.Clear();
-                var itCat = _itemService.GetItemForCategory(Category.Id);
+                var itCat = await _itemService.GetItemForCategory(Category.Id);
                 foreach (var ic in itCat)
                 {
                     ItemsPerCategory.Add(ic);
@@ -91,22 +96,21 @@ namespace CafeKasse.MAUI.ViewModels
             }
         }
 
-        public async void InitializeOrders()
-        {
-            var orders = _orderService.GetAllOrders();
-            var tables = await _tableService.GetAllTables();
-            foreach (var order in orders)
-                Orders.Add(order);
-            foreach (var table in tables)
-                Tables.Add(table);
-        }
+        //public async void InitializeOrders()
+        //{
+        //    var orders = _orderService.GetAllOrders();
+        //    var tables = await _tableService.GetAllTables();
+        //    foreach (var order in orders)
+        //        Orders.Add(order);
+        //    foreach (var table in tables)
+        //        Tables.Add(table);
+        //}
         public async void Initialize()
         {
-            var items = _itemService.GetAllItems();
-            var categ = _categoryService.GetAllCategories();
-            var orderItems = _orderItemService.GetOrderItems();
-            var orders = _orderService.GetAllOrders();
-            var tables = await _tableService.GetAllTables();
+            var items = await _itemService.GetAllItems();
+            var categ = await _categoryService.GetAllCategories();
+            var orderItems = await _orderItemService.GetOrderItems();
+            var orders = await _orderService.GetAllOrders();
 
             foreach (var cat in categ)
                 Categories.Add(cat);
@@ -116,8 +120,6 @@ namespace CafeKasse.MAUI.ViewModels
                 OrderItems.Add(orderitem);
             foreach (var order in orders)
                 Orders.Add(order);
-            foreach (var table in tables)
-                Tables.Add(table);
 
         }
 
@@ -125,32 +127,61 @@ namespace CafeKasse.MAUI.ViewModels
         private void SelectedCategory_Changed(Category category)
         {
             Category = category;
+            Toast.Make($" Category Name {Category.Name} for Table {Table.TableNumber}").Show();
         }
 
         [RelayCommand]
         private void SelectedItem_Changed(Item item)
         {
             Item = item;
+            AddOrderItem();
+            Toast.Make($" Item Name {Item.Name} for Category {Category.Name} and the Table {Table.TableNumber}").Show();
+
         }
 
-        // if table status is ocuppied and table.orderId exists for an order with status confirmed then add the item to order 
-        // if the order item doesn't exist create a new one with quantity 1 else increase the quantity++
-        private void AddOrderItem()
+        [RelayCommand]
+        private async void AddOrderItem()
         {
-            //if the orders has selected item then increase it 
-            var orderItem = OrderItems.FirstOrDefault(i => i.ItemId == Item.Id);
+            if (Item is not null && Table is not null)
+            {
+                var ord = await _orderService.GetOrderByTableNumber(Table.TableNumber);
 
-            if (Table.State == TableStatus.Occupied && (Order.Status == OrderStatus.Created && Order.TableNumber == Table.TableNumber))
-                if (orderItem is null)
-                    OrderItems.Add(new OrderItem { Id = GenerateRandomId(2, 100), ItemId = Item.Id, ItemName = Item.Name, Quantity = 1, Price = Item.Price, OrderId = Order.Id });
-                else orderItem.Quantity++;
+                if (ord is null)
+                {
+                    Order = await _orderService.SaveOrderAsync(new Order() { TableNumber = Table.TableNumber, TableId = Table.Id });
+                    Orders.Add(Order);
+
+                    Table.State = TableStatus.Occupied;
+                    await _tableService.UpdateTableAsync(Table, Table.Id);
+                    _tableViewModel.Tables.FirstOrDefault(t => t.Id == Table.Id).State = TableStatus.Occupied;
+
+                    OrderItem = await _orderItemService.SaveOrderItemAsync(new OrderItem
+                    { ItemId = Item.Id, OrderId = Order.Id, Price = Item.Price, Quantity = 1 });
+                    OrderItems.Add(OrderItem);
+                }
+                else
+                {
+                    Order = ord;
+
+                    var ordItems = await _orderItemService.GetOrderItemsForOrder(Order.Id);
+
+                    OrderItem = ordItems.FirstOrDefault(oi => oi.ItemId == Item.Id);
+
+                    if (OrderItem is not null)
+                    {
+                        OrderItem.Quantity++;
+                        OrderItems.FirstOrDefault(OrderItem).Quantity++;
+                        await _orderItemService.UpdateOrderItemAsync(OrderItem, OrderItem.Id);
+                    }
+                    OrderItem = await _orderItemService.SaveOrderItemAsync(new OrderItem
+                    { ItemId = Item.Id, OrderId = Order.Id, Price = Item.Price, Quantity = 1 });
+                    OrderItems.Add(OrderItem);
+                }
+
+            }
+            else
+                await Toast.Make(" Please Select an Item ").Show();
         }
 
-
-
-        public int GenerateRandomId(int minValue, int maxValue)
-        {
-            return random.Next(minValue, maxValue + 1);
-        }
     }
 }

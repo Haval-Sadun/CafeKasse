@@ -12,7 +12,7 @@ namespace CafeKasse.API.Models
         public double Price { get; set; }
 
 
-        public virtual Order Order { get; set; }
-        public virtual Item Item { get; set; }
+        public virtual Order? Order { get; set; }
+        public virtual Item? Item { get; set; }
     }
 }

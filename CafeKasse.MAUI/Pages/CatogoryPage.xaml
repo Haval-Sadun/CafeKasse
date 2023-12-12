@@ -21,8 +21,8 @@
     </ContentPage.Resources>
 
     <Grid ColumnDefinitions=".65*,150,.25*" RowDefinitions="auto,*">
-
-        <CollectionView Grid.Column="1" Grid.Row="1" Grid.RowSpan="1" ItemsSource="{Binding Categories}"  >
+        <ScrollView Grid.Column="1" Grid.Row="1" Grid.RowSpan="1">
+        <CollectionView  ItemsSource="{Binding Categories}"  >
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="5"/>
             </CollectionView.ItemsLayout>
@@ -30,8 +30,12 @@
                 <DataTemplate x:DataType="models:Category">
                     <Border Style="{StaticResource CategoryBorder}">
                         <Grid >
-                            <Image Source="{Binding Image}" Aspect="AspectFill"
-                                   VerticalOptions="Center" HorizontalOptions="Center" />
+                            <Image Aspect="AspectFill"
+                                   VerticalOptions="Center" HorizontalOptions="Center" >
+                                <Image.Source>
+                                    <UriImageSource Uri="{Binding Image}" CachingEnabled="True" />
+                                </Image.Source>
+                            </Image>
                             <Border StrokeShape="RoundRectangle 5" StrokeThickness="0" BackgroundColor="White" VerticalOptions="End"
                                     Padding="5" Margin="5">
                                 <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" HorizontalTextAlignment="Center"  />
@@ -46,15 +50,20 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-
-        <FlexLayout  Grid.Column="0" Grid.Row="1" BindableLayout.ItemsSource="{Binding ItemsPerCategory}"
+        </ScrollView>
+        <ScrollView Grid.Column="0" Grid.Row="1">
+        <FlexLayout   BindableLayout.ItemsSource="{Binding ItemsPerCategory}"
                         Wrap="Wrap" AlignItems="Start" JustifyContent="SpaceEvenly" VerticalOptions="Start" >
             <BindableLayout.ItemTemplate>
                 <DataTemplate x:DataType="models:Item">
                     <Border  HeightRequest="175" WidthRequest="120" StrokeShape="RoundRectangle 20"
                              StrokeThickness="1">
                         <Grid>
-                            <Image Source="{Binding Image}" Aspect="AspectFill" VerticalOptions="Start" HorizontalOptions="Center"/>
+                            <Image Aspect="AspectFill" VerticalOptions="Start" HorizontalOptions="Center">
+                                <Image.Source>
+                                    <UriImageSource Uri="{Binding Image}" CachingEnabled="True" />
+                                </Image.Source>
+                            </Image>
                             <Border VerticalOptions="End" Padding="2" Margin="5">
                                 <Grid>
                                     <Label HorizontalTextAlignment="Start" VerticalTextAlignment="Center" Text="{Binding Name}" />
@@ -63,14 +72,15 @@
                             </Border>
                         </Grid>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={x:RelativeSource AncestorType={x:Type vm:CategoryViewModel}}, Path=SelectedItem_ChangedCommand}"
+                            <TapGestureRecognizer Command="{Binding Source={x:RelativeSource 
+                                AncestorType={x:Type vm:CategoryViewModel}}, Path=SelectedItem_ChangedCommand}"
                           CommandParameter="{Binding .}"/>
                         </Border.GestureRecognizers>
                     </Border>
                 </DataTemplate>
             </BindableLayout.ItemTemplate>
         </FlexLayout>
-
+        </ScrollView>
     </Grid>
 </ContentPage> 
     

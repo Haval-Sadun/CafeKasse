@@ -1,44 +1,27 @@
 ﻿using CafeKasse.MAUI.Models;
 using CafeKasse.MAUI.Models.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace CafeKasse.MAUI.Services
 {
-    public class TableService
+    public class TableService : BaseApiService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
         private IEnumerable<Table>? _tables;
-        public TableService(IHttpClientFactory httpClientFactory)
-        {
-            _httpClientFactory = httpClientFactory;
-        }
-
+        public TableService(IHttpClientFactory httpClientFactory) : base(httpClientFactory) { }
 
         public async ValueTask<IEnumerable<Table>> GetAllTables()
         {
             if (_tables == null)
             {
-                var httpClient = _httpClientFactory.CreateClient(Constants.AppConstants.HttpClientName);
+                var response = await HttpClient.GetAsync("/api/Tables");
 
-                var response = await httpClient.GetAsync("/api/Tables");
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    if (content is not null)
-                        _tables = JsonSerializer.Deserialize<IEnumerable<Table>?>(content, new JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
-                }
-                else
-                {
+                var tables = await HandleApiResponseAsync<IEnumerable<Table>>(response, null);
+                if (tables is null)
                     return Enumerable.Empty<Table>();
-                }
+
+                _tables = tables;
             }
             return _tables;
         }
@@ -52,6 +35,39 @@ namespace CafeKasse.MAUI.Services
                 return tables.Where(t => t.State == status);
             }
             return Enumerable.Empty<Table>();
+        }
+
+        public async ValueTask<Table> SaveTableAsync(Table table)
+        {
+            string json = JsonSerializer.Serialize<Table>(table, serializerOptions);
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = null;
+
+            response = await HttpClient.PostAsync("/api/Tables", content);
+
+            return await HandleApiResponseAsync<Table>(response, null);
+        }
+        public async Task UpdateTableAsync(Table table, int id)
+        {
+            string json = JsonSerializer.Serialize(table, serializerOptions);
+            StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            await HttpClient.PutAsync($"/api/Table/{id}", content);
+
+        }
+        public async Task DeleteTableAsync(int id)
+        {
+            try
+            {
+                HttpResponseMessage response = await HttpClient.DeleteAsync($"/api/Table/{id}");
+                if (response.IsSuccessStatusCode)
+                    Debug.WriteLine(@"\tTable successfully deleted.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(@"\tERROR {0}", ex.Message);
+            }
         }
     }
 }

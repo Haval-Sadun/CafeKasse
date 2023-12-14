@@ -22,30 +22,29 @@ namespace CafeKasse.MAUI.Services
         // we Get the Cart items for the selected order 
         public async ValueTask<IEnumerable<OrderItem>> GetOrderItems()
         {
-            if (_orderItems == null)
-            {
-                var response = await HttpClient.GetAsync("/api/OrderItems");
-                var orderItems = await HandleApiResponseAsync<IEnumerable<OrderItem>>(response, null);
-                if (orderItems == null)
-                    return Enumerable.Empty<OrderItem>();
-                _orderItems = orderItems;
-            }
+
+            var response = await HttpClient.GetAsync("/api/OrderItems");
+            var orderItems = await HandleApiResponseAsync<IEnumerable<OrderItem>>(response, null);
+            if (orderItems == null)
+                return Enumerable.Empty<OrderItem>();
+            _orderItems = orderItems;
+
+            return _orderItems;
+        }
+        public async ValueTask<IEnumerable<OrderItem>> GetOrderItemsByOrder(int id)
+        {
+            var response = await HttpClient.GetAsync($"/api/OrderItems/Order/{id}");
+            var orderItems = await HandleApiResponseAsync<IEnumerable<OrderItem>>(response, null);
+            if (orderItems == null)
+                return Enumerable.Empty<OrderItem>();
+            _orderItems = orderItems;
             return _orderItems;
         }
 
-        public async ValueTask<IEnumerable<OrderItem>> GetOrderItemsForOrder(int orderId)
-        {
-            var ord = await _orderService.GetOrderbyId(orderId);
-            if (ord is not null)
-                (await GetOrderItems()).Where(oi => oi.OrderId == orderId ||
-                                                ord.Status == OrderStatus.Created ||
-                                                ord.Status == OrderStatus.InProgress);
-            return Enumerable.Empty<OrderItem>();
-        }
 
         public async ValueTask<OrderItem> SaveOrderItemAsync(OrderItem orderItem)
         {
-            string json = JsonSerializer.Serialize<OrderItem>(orderItem, serializerOptions);
+            string json = JsonSerializer.Serialize(orderItem, serializerOptions);
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
             HttpResponseMessage response = null;
@@ -55,7 +54,7 @@ namespace CafeKasse.MAUI.Services
             return await HandleApiResponseAsync<OrderItem>(response, null);
 
         }
-        public async Task UpdateOrderItemAsync(OrderItem orderItem, int id)
+        public async Task UpdateOrderItemAsync(OrderItem orderItem, Guid id)
         {
             string json = JsonSerializer.Serialize(orderItem, serializerOptions);
             StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -63,7 +62,7 @@ namespace CafeKasse.MAUI.Services
             await HttpClient.PutAsync($"/api/OrderItems/{id}", content);
 
         }
-        public async Task DeleteOrderItemAsync(int id)
+        public async Task DeleteOrderItemAsync(Guid id)
         {
             try
             {

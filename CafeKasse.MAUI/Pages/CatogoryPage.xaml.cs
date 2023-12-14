@@ -1,3 +1,4 @@
+using CafeKasse.MAUI.Models;
 using CafeKasse.MAUI.ViewModels;
 
 namespace CafeKasse.MAUI.Pages
@@ -6,7 +7,7 @@ namespace CafeKasse.MAUI.Pages
     {
         private readonly CategoryViewModel _categoryViewModel;
 
-        public CategoryPage(CategoryViewModel categoryViewModel)
+        public CategoryPage(CategoryViewModel categoryViewModel, OrderItemViewModel orderItemViewModel)
         {
             InitializeComponent();
             _categoryViewModel = categoryViewModel;

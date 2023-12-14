@@ -2,9 +2,11 @@
 using CafeKasse.MAUI.Models.Enums;
 using CafeKasse.MAUI.Services;
 using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.Security.Cryptography;
 
 namespace CafeKasse.MAUI.ViewModels
 {
@@ -15,8 +17,6 @@ namespace CafeKasse.MAUI.ViewModels
         private readonly ItemService _itemService;
 
         private readonly OrderItemService _orderItemService;
-        private readonly TableService _tableService;
-        private readonly HomeViewModel _tableViewModel;
         private readonly OrderService _orderService;
         public CategoryViewModel(CategoryService categoryService, ItemService itemService,
                                 OrderService orderService, OrderItemService orderItemService,
@@ -26,23 +26,21 @@ namespace CafeKasse.MAUI.ViewModels
             _itemService = itemService;
             _orderService = orderService;
             _orderItemService = orderItemService;
-            _tableService = tableService;
-            _tableViewModel = tableViewModel;
         }
 
         public ObservableCollection<Item> Items { get; set; } = new();
         public ObservableCollection<Item> ItemsPerCategory { get; set; } = new();
         public ObservableCollection<Category> Categories { get; set; } = new();
 
-        // Collections for the Order and the order items 
-        public ObservableCollection<OrderItem> OrderItems { get; set; } = new();
+        public ObservableCollection<OrderItem> ItemsPerOrder { get; set; } = new();
         public ObservableCollection<Order> Orders { get; set; } = new();
 
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(Order))]
+        [ObservableProperty,
+            NotifyCanExecuteChangedFor(nameof(InitializeItemsPerOrderCommand))]
         private Table? _table;
 
-        [ObservableProperty, NotifyPropertyChangedFor(nameof(ItemsPerCategory))]
+        [ObservableProperty]
         private Category? _category;
 
         [ObservableProperty]
@@ -53,36 +51,32 @@ namespace CafeKasse.MAUI.ViewModels
 
         [ObservableProperty]
         private OrderItem? _orderItem;
+        [ObservableProperty]
+        private double _totalAmount;
+        private void RecalculateTotalAmount() => TotalAmount = ItemsPerOrder?.Sum(c => c?.Amount ?? 0) ?? 0;
 
-
-
-        //executed by toolkit for the observable property "Category"
-        partial void OnCategoryChanged(Category? cat)
+        partial void OnTableChanged(Table? value) => InitializeOrderProTableCommand.Execute(value);
+        partial void OnCategoryChanged(Category? cat) => InitializeItemProCategory();
+        partial void OnItemChanged(Item? value)
         {
-            InitializeItemProCategory();
+            OrderItem = ItemsPerOrder?.FirstOrDefault(oi => oi?.ItemId == value?.Id) ?? null;
+            //Toast.Make($"the value of order Item is : {OrderItem}", ToastDuration.Short).Show();
         }
 
-        //partial void OnTableChanged(Table value)
-        //{
-        //    var order = _orderService.GetOrderByTableNumber(value.TableNumber);
-        //    if (order != null)
-        //        Order = order.Result;
-        //    else
-        //        Order = order.Result;
-        ////InitializeOrders();
-        //if (value.State != TableStatus.Occupied)
-        //{
-        //    value.State = TableStatus.Occupied;
-        //    var or = new Order { Id = GenerateRandomId(3, 100), TableNumber = value.TableNumber };
-        //    _orderService.AddOrder(or);
-        //    Order = or;
-        //}
-        //else
-        //    Order = await _orderService.GetOrderByTableNumber(value.TableNumber);
-        //Toast.Make($" order id {Order.Id} for Table {value.TableNumber}").Show();
+        public async void Initialize()
+        {
+            var items = await _itemService.GetAllItems();
+            var categ = await _categoryService.GetAllCategories();
+            var orders = await _orderService.GetAllOrders();
+            foreach (var cat in categ)
+                Categories.Add(cat);
+            foreach (var it in items)
+                Items.Add(it);
+            foreach (var order in orders)
+                Orders.Add(order);
+        }
 
-        //}
-
+        [RelayCommand]
         public async void InitializeItemProCategory()
         {
             if (Category is not null)
@@ -95,92 +89,86 @@ namespace CafeKasse.MAUI.ViewModels
                 }
             }
         }
-
-        //public async void InitializeOrders()
-        //{
-        //    var orders = _orderService.GetAllOrders();
-        //    var tables = await _tableService.GetAllTables();
-        //    foreach (var order in orders)
-        //        Orders.Add(order);
-        //    foreach (var table in tables)
-        //        Tables.Add(table);
-        //}
-        public async void Initialize()
+        [RelayCommand]
+        private async void InitializeOrderProTable(Table table)
         {
-            var items = await _itemService.GetAllItems();
-            var categ = await _categoryService.GetAllCategories();
-            var orderItems = await _orderItemService.GetOrderItems();
-            var orders = await _orderService.GetAllOrders();
-
-            foreach (var cat in categ)
-                Categories.Add(cat);
-            foreach (var it in items)
-                Items.Add(it);
-            foreach (var orderitem in orderItems)
-                OrderItems.Add(orderitem);
-            foreach (var order in orders)
-                Orders.Add(order);
-
+            if (Table is not null)
+            {
+                Order = await _orderService.GetOrderByTableNumber(table.TableNumber);
+                InitializeItemsPerOrderCommand.Execute(Order);
+            }
         }
+        [RelayCommand]
+        private async void InitializeItemsPerOrder(Order ord)
+        {
+            if (ord is not null)
+            {
+                ItemsPerOrder.Clear();
+                var ordItm = await _orderItemService.GetOrderItemsByOrder(ord.Id);
+                foreach (var oi in ordItm)
+                {
+                    ItemsPerOrder.Add(oi);
+                }
+                RecalculateTotalAmount();
+            }
+        }
+
+
 
         [RelayCommand]
-        private void SelectedCategory_Changed(Category category)
-        {
-            Category = category;
-            Toast.Make($" Category Name {Category.Name} for Table {Table.TableNumber}").Show();
-        }
+        private void SelectedCategory_Changed(Category category) => Category = category;
 
         [RelayCommand]
         private void SelectedItem_Changed(Item item)
         {
             Item = item;
-            AddOrderItem();
-            Toast.Make($" Item Name {Item.Name} for Category {Category.Name} and the Table {Table.TableNumber}").Show();
+            AddToCart(Item);
 
         }
-
+        private async Task AddToCart(Item item) => await UpdateCartAsync(item, 1);
         [RelayCommand]
-        private async void AddOrderItem()
+        private async Task RemoveFromCart(Item item) => await UpdateCartAsync(item, -1);
+        private async Task UpdateCartAsync(Item item, int count)
         {
-            if (Item is not null && Table is not null)
+            if (item is not null)
             {
-                var ord = await _orderService.GetOrderByTableNumber(Table.TableNumber);
-
-                if (ord is null)
+                if (Order is null)
                 {
-                    Order = await _orderService.SaveOrderAsync(new Order() { TableNumber = Table.TableNumber, TableId = Table.Id });
+                    Order = await _orderService.SaveOrderAsync(new Order()
+                    {
+                        TableNumber = Table.TableNumber,
+                        TableId = Table.Id
+                    });
                     Orders.Add(Order);
-
-                    Table.State = TableStatus.Occupied;
-                    await _tableService.UpdateTableAsync(Table, Table.Id);
-                    _tableViewModel.Tables.FirstOrDefault(t => t.Id == Table.Id).State = TableStatus.Occupied;
-
-                    OrderItem = await _orderItemService.SaveOrderItemAsync(new OrderItem
-                    { ItemId = Item.Id, OrderId = Order.Id, Price = Item.Price, Quantity = 1 });
-                    OrderItems.Add(OrderItem);
                 }
-                else
+                if (count == 1)
                 {
-                    Order = ord;
-
-                    var ordItems = await _orderItemService.GetOrderItemsForOrder(Order.Id);
-
-                    OrderItem = ordItems.FirstOrDefault(oi => oi.ItemId == Item.Id);
-
                     if (OrderItem is not null)
                     {
                         OrderItem.Quantity++;
-                        OrderItems.FirstOrDefault(OrderItem).Quantity++;
                         await _orderItemService.UpdateOrderItemAsync(OrderItem, OrderItem.Id);
-                    }
-                    OrderItem = await _orderItemService.SaveOrderItemAsync(new OrderItem
-                    { ItemId = Item.Id, OrderId = Order.Id, Price = Item.Price, Quantity = 1 });
-                    OrderItems.Add(OrderItem);
-                }
 
+                    }
+                    else
+                    {
+                        OrderItem = await _orderItemService.SaveOrderItemAsync(new OrderItem
+                        {
+                            Id = Guid.NewGuid(),
+                            ItemId = item.Id,
+                            ItemName = item.Name,
+                            OrderId = Order.Id,
+                            Price = item.Price,
+                            Quantity = 1
+                        });
+                        ItemsPerOrder.Add(OrderItem);
+                    }
+                    RecalculateTotalAmount();
+                }
+                /*else if (count == -1)
+                {
+                    _orderItemViewModel.RemoveFromCartCommand.Execute(item);
+                }*/
             }
-            else
-                await Toast.Make(" Please Select an Item ").Show();
         }
 
     }

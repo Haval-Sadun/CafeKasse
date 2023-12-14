@@ -86,6 +86,9 @@ namespace CafeKasse.API.Data
                 .WithOne(i => i.OrderItem)
                 .HasForeignKey<OrderItem>(x => x.ItemId)
                 .IsRequired();
+            modelBuilder.Entity<OrderItem>()
+                .HasIndex(oi => oi.ItemId)
+                .IsUnique(false);
             #endregion
 
             #region Seeding Data 

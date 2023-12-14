@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CafeKasse.API.Data;
 using CafeKasse.API.Models;
+using CafeKasse.API.Models.Enums;
 
 namespace CafeKasse.API.Controllers
 {
@@ -30,7 +31,7 @@ namespace CafeKasse.API.Controllers
 
         // GET: api/OrderItems/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrderItem>> GetOrderItem(int id)
+        public async Task<ActionResult<OrderItem>> GetOrderItem(Guid id)
         {
             var orderItem = await _context.OrderItems.FindAsync(id);
 
@@ -41,11 +42,27 @@ namespace CafeKasse.API.Controllers
 
             return orderItem;
         }
+        [HttpGet("Order/{id}")]
+        public async Task<ActionResult<IEnumerable<OrderItem>>> GetOrderItemsByOrder(int id)
+        {
+            var ordItem = await (from orderItem in _context.OrderItems
+                                 join order in _context.Orders
+                                 on orderItem.OrderId equals order.Id
+                                 where order.Id == id && order.Status == OrderStatus.Created
+                                 select orderItem).ToListAsync();
+
+            if (ordItem == null)
+            {
+                return NotFound();
+            }
+
+            return ordItem;
+        }
 
         // PUT: api/OrderItems/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrderItem(int id, OrderItem orderItem)
+        public async Task<IActionResult> PutOrderItem(Guid id, OrderItem orderItem)
         {
             if (id != orderItem.Id)
             {
@@ -86,7 +103,7 @@ namespace CafeKasse.API.Controllers
 
         // DELETE: api/OrderItems/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrderItem(int id)
+        public async Task<IActionResult> DeleteOrderItem(Guid id)
         {
             var orderItem = await _context.OrderItems.FindAsync(id);
             if (orderItem == null)
@@ -100,7 +117,7 @@ namespace CafeKasse.API.Controllers
             return NoContent();
         }
 
-        private bool OrderItemExists(int id)
+        private bool OrderItemExists(Guid id)
         {
             return _context.OrderItems.Any(e => e.Id == id);
         }

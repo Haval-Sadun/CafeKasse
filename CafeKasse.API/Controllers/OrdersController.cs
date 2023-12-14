@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CafeKasse.API.Data;
 using CafeKasse.API.Models;
+using CafeKasse.API.Models.Enums;
 
 namespace CafeKasse.API.Controllers
 {
@@ -33,6 +34,20 @@ namespace CafeKasse.API.Controllers
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
             var order = await _context.Orders.FindAsync(id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return order;
+        }
+        // GET: api/Orders/Table/5
+        [HttpGet("Table/{tableNumber}")]
+        public async Task<ActionResult<Order>> GetOrderByTableNumber(int tableNumber)
+        {
+            var order = await _context.Orders.Where(o => o.TableNumber == tableNumber &&
+            (o.Status == OrderStatus.Created)).FirstOrDefaultAsync();
 
             if (order == null)
             {

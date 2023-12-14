@@ -33,7 +33,7 @@ namespace CafeKasse.MAUI.ViewModels
             await Shell.Current.GoToAsync(nameof(CategoryPage), animate: true, parameters);
         }
 
-        public async Task initializeTables()
+        public async void initializeTables()
         {
             var tables = await _tableService.GetAllTables();
             Tables.Clear();

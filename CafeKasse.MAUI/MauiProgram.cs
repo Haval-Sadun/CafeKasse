@@ -51,6 +51,8 @@ namespace CafeKasse.MAUI
             services.AddSingleton<OrderService>();
             services.AddSingleton<OrderItemService>();
 
+            services.AddTransient<OrderItemViewModel>();
+
             services.AddSingletonWithShellRoute<HomePage, HomeViewModel>(nameof(HomePage));
             services.AddTransientWithShellRoute<CategoryPage, CategoryViewModel>(nameof(CategoryPage));
 

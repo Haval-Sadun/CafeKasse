@@ -37,7 +37,7 @@ namespace CafeKasse.MAUI.ViewModels
             }
             else
             {
-                OrderItems.Add(cartItem.Clone());
+                OrderItems.Add(cartItem);
             }
             RecalculatTotalAmount();
         }

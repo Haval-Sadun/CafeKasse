@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="CafeKasse.MAUI.Pages.Controls.OrderControl"
+             xmlns:vm="clr-namespace:CafeKasse.MAUI.ViewModels"
+             xmlns:models="clr-namespace:CafeKasse.MAUI.Models"    
+             x:DataType="vm:OrderItemViewModel">
+    <CollectionView ItemsSource="{Binding OrderItems}">
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="models:OrderItem">
+                <HorizontalStackLayout>
+                    <Label Text="{Binding ItemName}" />
+                    <Label Text="{Binding Quantity}" />
+                </HorizontalStackLayout>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+</ContentView>

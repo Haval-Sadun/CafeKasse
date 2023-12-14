@@ -16,15 +16,5 @@ namespace CafeKasse.MAUI.Models
         public int TableId { get; set; }
         public double TotalAmount => OrderItems.Sum(i => i.Amount);
         public OrderStatus Status { get; set; } = OrderStatus.Created;
-        public Color Color => _orderStatusColorMap[Status];
-
-        private static readonly IReadOnlyDictionary<OrderStatus, Color> _orderStatusColorMap =
-            new Dictionary<OrderStatus, Color>
-            {
-                [OrderStatus.Created] = Colors.Yellow,
-                [OrderStatus.InProgress] = Colors.Blue,
-                [OrderStatus.Done] = Colors.Green,
-                [OrderStatus.Cancelled] = Colors.Red,
-            };
     }
 }

@@ -9,14 +9,14 @@ namespace CafeKasse.MAUI.Models
 {
     public partial class OrderItem : ObservableObject
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int ItemId { get; set; }
+        public string ItemName { get; set; }
         public int OrderId { get; set; }
         public double Price { get; set; }
 
         [ObservableProperty, NotifyPropertyChangedFor(nameof(Amount))]
         private int _quantity;
         public double Amount => Price * Quantity;
-        public OrderItem Clone() => (OrderItem)MemberwiseClone();
     }
 }

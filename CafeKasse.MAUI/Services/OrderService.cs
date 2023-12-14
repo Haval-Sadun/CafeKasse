@@ -14,21 +14,22 @@ namespace CafeKasse.MAUI.Services
 
         public async ValueTask<IEnumerable<Order>> GetAllOrders()
         {
-            if (_orders == null)
-            {
-                var response = await HttpClient.GetAsync("/api/Orders");
-                var orders = await HandleApiResponseAsync(response, Enumerable.Empty<Order>());
-                if (orders == null)
-                    return Enumerable.Empty<Order>();
-                _orders = orders;
-            }
+
+            var response = await HttpClient.GetAsync("/api/Orders");
+            var orders = await HandleApiResponseAsync(response, Enumerable.Empty<Order>());
+            if (orders == null)
+                return Enumerable.Empty<Order>();
+            _orders = orders;
+
             return _orders;
         }
 
-        public async ValueTask<Order> GetOrderByTableNumber(int tableNumber) =>
-            (await GetAllOrders()).Where(o => o.Status == OrderStatus.Created ||
-                                            o.Status == OrderStatus.InProgress)
-                                  .FirstOrDefault(o => o.TableNumber == tableNumber);
+        public async ValueTask<Order> GetOrderByTableNumber(int tableNumber)
+        {
+            var response = await HttpClient.GetAsync($"/api/Orders/Table/{tableNumber}");
+            return await HandleApiResponseAsync<Order>(response, null);
+
+        }
 
 
         public async ValueTask<Order> GetOrderbyId(int id) =>
